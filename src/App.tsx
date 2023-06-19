@@ -25,9 +25,9 @@ function App() {
       <Canvas style={{height: "100vh"}} camera={{
         near: 0.001, 
         far: 1000,
-        position: [0, 0, 14]
+        position: [0, 0, size+14]
       }}>
-        <ambientLight />
+        <ambientLight intensity={0.8} />
         <Construct scale={size/8}/>
         <OrbitControls/>
       </Canvas>

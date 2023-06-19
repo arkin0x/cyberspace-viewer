@@ -3,6 +3,7 @@ import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { Line } from "three"
 import { InverseConstructLineData } from "../data/ConstructLineData.js"
+import { Operator } from "./ThreeOperator"
 
 const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
@@ -28,7 +29,7 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
   const { camera } = useThree()
 
   const targetPosition = new THREE.Vector3()
-  const radius = 15 + scale // The radius of the circular path the camera will follow
+  const radius = 128+scale/4 // The radius of the circular path the camera will follow
   const center = new THREE.Vector3(0, 0, 0) // The center of the object
 
   // Attach pointerdown and pointerup event listeners
@@ -126,7 +127,7 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
       const angle = (clock.elapsedTime + elapsedTime) * 0.2 // Controls the speed of rotation
       targetPosition.set(
         center.x + radius * Math.sin(angle),
-        center.y + 5,
+        center.y + scale/5,
         center.z + radius * Math.cos(angle)
       )
       camera.position.lerp(targetPosition, 0.05)
@@ -140,11 +141,12 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
   })
 
   return (
+    <>
     <group ref={groupRef}>
       {lines}
       {grids}
     </group>
+    <Operator position={[-scale*4 -1, 0, scale*4 +1]}/>
+    </>
   )
 }
-
-export default Construct
