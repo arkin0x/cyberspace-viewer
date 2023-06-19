@@ -9,7 +9,7 @@ const OperatorMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.2,
 })
 
-const OperatorGeometry = new THREE.IcosahedronGeometry(1,1)
+const OperatorGeometry = new THREE.IcosahedronGeometry(.5,1)
 
 // Create edges geometry for the golden wireframe
 const OperatorGeometryEdges = new THREE.EdgesGeometry(OperatorGeometry)
