@@ -43,7 +43,7 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
       defaultViewTimeoutRef.current = setTimeout(() => {
           // LERP camera back to default orbit
           setDefaultView(true)
-        }, 2000)
+        }, 10000)
     }
 
     window.addEventListener('pointerdown', handleInteractionStart)
@@ -137,7 +137,6 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
         clock.stop()
       }
     }
-    console.log(clock.elapsedTime + elapsedTime, clock.elapsedTime, elapsedTime)
   })
 
   return (
