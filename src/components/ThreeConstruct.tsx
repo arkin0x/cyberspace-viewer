@@ -3,7 +3,6 @@ import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { Line } from "three"
 import { InverseConstructLineData } from "../data/ConstructLineData.js"
-import { OrbitControls } from "@react-three/drei"
 
 const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
@@ -24,23 +23,27 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
+  const defaultViewTimeoutRef = useRef<number|undefined>(undefined)
+  const [elapsedTime, setElapsedTime] = useState(0)
   const { camera } = useThree()
 
   const targetPosition = new THREE.Vector3()
-  const radius = 14 // The radius of the circular path the camera will follow
+  const radius = 15 + scale // The radius of the circular path the camera will follow
   const center = new THREE.Vector3(0, 0, 0) // The center of the object
 
   // Attach pointerdown and pointerup event listeners
   useEffect(() => {
     const handleInteractionStart = () => {
+      clearTimeout(defaultViewTimeoutRef.current)
       setInteractionActive(true)
       setDefaultView(false)
     }
     const handleInteractionEnd = () => {
       setInteractionActive(false)
-      setTimeout(() => {
-        setDefaultView(true)
-      }, 2000)
+      defaultViewTimeoutRef.current = setTimeout(() => {
+          // LERP camera back to default orbit
+          setDefaultView(true)
+        }, 2000)
     }
 
     window.addEventListener('pointerdown', handleInteractionStart)
@@ -114,24 +117,27 @@ export const Construct: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
     return { lines, grids }
   }, [])
   
-  // camera.position.x = center.x - radius * Math.sin(Math.PI/4)
-  // camera.position.z = center.z - radius * Math.cos(Math.PI/8)
-
   useFrame(({ clock }) => {
     if (groupRef.current) {
-      // groupRef.current.scale.set(scale, scale, scale)
-      // groupRef.current.rotation.y += 0.005
+      groupRef.current.scale.set(scale, scale, scale)
     }
-    const angle = clock.elapsedTime * 0.2 // Controls the speed of rotation
     if (defaultView) {
+      if (!clock.running) clock.start()
+      const angle = (clock.elapsedTime + elapsedTime) * 0.2 // Controls the speed of rotation
       targetPosition.set(
         center.x + radius * Math.sin(angle),
-        center.y,
+        center.y + 5,
         center.z + radius * Math.cos(angle)
       )
       camera.position.lerp(targetPosition, 0.05)
       camera.lookAt(center)
+    } else {
+      if (clock.running) {
+        setElapsedTime(clock.elapsedTime + elapsedTime)
+        clock.stop()
+      }
     }
+    console.log(clock.elapsedTime + elapsedTime, clock.elapsedTime, elapsedTime)
   })
 
   return (
