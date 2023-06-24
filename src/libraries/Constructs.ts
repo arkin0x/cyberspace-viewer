@@ -12,13 +12,14 @@ export function constructSizeByValidProofOfWork(pow) {
 
 export const emptyHex256 = "0000000000000000000000000000000000000000000000000000000000000000"
 
-export type BigCoords = {
-  X: number
-  Y: number
-  Z: number
+export type Coords = {
+  x: number
+  y: number
+  z: number
 }
 
-export function decodeHexToCoordinates(hexString: string): BigCoords {
+// @todo this decoding doesn't work as described in the cyberspace spec. Each most significant bit should divide the space in half.
+export function decodeHexToCoordinates(hexString: string, downscale: bigint): Coords {
     // Checking if the input string is a valid 64 character hexadecimal string
     if (!/^([0-9A-Fa-f]{64})$/.test(hexString)) {
         throw new Error("Invalid hexadecimal string.")
@@ -30,7 +31,7 @@ export function decodeHexToCoordinates(hexString: string): BigCoords {
     let Z = BigInt(0)
 
     // Convert hex string to binary
-    let binaryString = BigInt("0x" + hexString).toString(2).padStart(256, '0')
+    const binaryString = BigInt("0x" + hexString).toString(2).padStart(256, '0')
 
     // Traverse through the binary string
     for (let i = 0; i < 255; i++) {
@@ -47,5 +48,5 @@ export function decodeHexToCoordinates(hexString: string): BigCoords {
         }
     }
 
-    return {X: Number(X), Y: Number(Y), Z: Number(Z)}
+    return {x: Number(X/downscale), y: Number(Y/downscale), z: Number(Z/downscale)}
 }

@@ -1,9 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { Line } from "three"
-import { InverseConstructLineData } from "../data/ConstructLineData.js"
-import { Operator } from "./ThreeOperator"
+import { Coords } from "../libraries/Constructs.js"
 
 const INTERACTION_RESET_DELAY = 10_000
 
@@ -29,10 +27,11 @@ const SunMaterial = new THREE.MeshBasicMaterial({
 
 interface CyberspaceProps {
   scale: number,
+  coord: Coords,
   children: React.ReactNode,
 }
 
-export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, children }) => {
+export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  children }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
@@ -61,11 +60,13 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, children }) =
 
     window.addEventListener('pointerdown', handleInteractionStart)
     window.addEventListener('pointerup', handleInteractionEnd)
+    window.addEventListener('wheel', handleInteractionStart)
 
     // Cleanup event listeners on unmount
     return () => {
       window.removeEventListener('pointerdown', handleInteractionStart)
       window.removeEventListener('pointerup', handleInteractionEnd)
+      window.addEventListener('wheel', handleInteractionStart)
     }
   }, [])
 
@@ -100,16 +101,16 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, children }) =
     if (groupRef.current) {
       groupRef.current.scale.set(scale, scale, scale)
     }
+    // camera.lookAt(new THREE.Vector3(coord.x, coord.y, coord.z))
     if (defaultView) {
       if (!clock.running) clock.start()
       const angle = (clock.elapsedTime + elapsedTime) * 0.2 // Controls the speed of rotation
       targetPosition.set(
-        center.x + radius * Math.sin(angle),
-        center.y + scale/5,
-        center.z + radius * Math.cos(angle)
+        coord.x + radius * Math.sin(angle),
+        coord.y + scale/5,
+        coord.z + radius * Math.cos(angle)
       )
       camera.position.lerp(targetPosition, 0.05)
-      camera.lookAt(center)
     } else {
       if (clock.running) {
         setElapsedTime(clock.elapsedTime + elapsedTime)

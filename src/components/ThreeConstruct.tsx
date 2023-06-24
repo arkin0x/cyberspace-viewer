@@ -87,7 +87,7 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
 
   return (
     <>
-    <group ref={groupRef} scale={[size, size, size]} position={[coord.X, coord.Y, coord.Z]} renderOrder={2}>
+    <group ref={groupRef} scale={[size, size, size]} position={[coord.x, coord.y, coord.z]} renderOrder={2}>
       {lines}
       {grids}
       <Operator position={[-size*4 -1, 0, size*4 +1]}/>
