@@ -75,14 +75,14 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, children }) =
     const grids = [
       <gridHelper
         key="y+"
-        args={[gridSize, 256]}
+        args={[gridSize, 32]}
         position={[0, gridSize / 2, 0]}
         material={BlueLineMaterial}
         renderOrder={1}
       />,
       <gridHelper
         key="y-"
-        args={[gridSize, 256]}
+        args={[gridSize, 32]}
         position={[0, -gridSize / 2, 0]}
         material={PurpleLineMaterial}
         renderOrder={1}
