@@ -27,7 +27,12 @@ const SunMaterial = new THREE.MeshBasicMaterial({
  side: THREE.DoubleSide,
 })
 
-export const Cyberspace: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+interface CyberspaceProps {
+  scale: number,
+  children: React.ReactNode,
+}
+
+export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, children }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
@@ -65,20 +70,8 @@ export const Cyberspace: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
   }, [])
 
   // Compute the lines and grids only once
-  const { lines, grids, blacksun } = useMemo(() => {
-    const lines = InverseConstructLineData.map(([start, end]) => {
-      const points = [new THREE.Vector3(...start), new THREE.Vector3(...end)]
-      const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      return (
-        <primitive
-          key={JSON.stringify({ start, end })}
-          object={new Line(geometry, TealLineMaterial)}
-        />
-      )
-    })
-
+  const { grids, blacksun } = useMemo(() => {
     const gridSize = 8
-    const gridSegments = 1
     const grids = [
       <gridHelper
         key="y+"
@@ -97,10 +90,10 @@ export const Cyberspace: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
     ]
 
     const blacksun = (
-      <mesh geometry={new THREE.CircleGeometry(scale, 64)} material={SunMaterial} position={[0,0,-scale*2*2]}/>
+      <mesh geometry={new THREE.CircleGeometry(scale, 64)} material={SunMaterial} position={[0,0,-scale*2*2]} renderOrder={-1}/>
     )
 
-    return { lines, grids, blacksun }
+    return { grids, blacksun }
   }, [])
   
   useFrame(({ clock }) => {
@@ -129,9 +122,9 @@ export const Cyberspace: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
     <>
     <group ref={groupRef}>
       {blacksun}
-      {lines}
       {grids}
     </group>
+      {children}
     </>
   )
 }
