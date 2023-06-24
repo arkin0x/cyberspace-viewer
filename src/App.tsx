@@ -1,34 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from "@react-three/drei"
-import { Construct } from './components/ThreeConstruct'
+import { Cyberspace } from './components/ThreeCyberspace'
 import './App.css'
 
-/**
- * Scale the object based on the size GET parameter
- * @param GET type: "construct" | "homecoord" // @todo 
- * @param GET size: integer. Always divided by 8 because the geometry def is only integers and didn't want to use floats.
- */
 function App() {
 
-  const [size, setSize] = useState(1)
+  const [size, setSize] = useState(2**50)
+  const [coord, setCoord] = useState("0000000000000000000000000000000000000000000000000000000000000000")
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    const sizeParam = urlParams.get('size') || ""
-    const size = parseInt(sizeParam) || 1 // Default to 1 if sizeParam is not a valid number
-    setSize(size)
+    const coordParam = urlParams.get('hash') || ""
+    setCoord(coordParam)
   }, [])
 
   return (
     <div className="cyberspace-viewer">
       <Canvas style={{height: "100vh"}} camera={{
         near: 0.001, 
-        far: 1000,
-        position: [0, 0, size+14]
+        far: size*2*2*2*2*2*2*2*2,
+        position: [0, 0, size]
       }}>
         <ambientLight intensity={0.8} />
-        <Construct scale={size/8}/>
+        <Cyberspace scale={size}/>
         <OrbitControls/>
       </Canvas>
     </div>
