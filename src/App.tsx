@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from "@react-three/drei"
-import { Cyberspace } from './components/ThreeCyberspace'
+import { Line, OrbitControls } from "@react-three/drei"
+import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, Cyberspace } from './components/ThreeCyberspace'
 import { Construct } from './components/ThreeConstruct'
 import './App.css'
-import { decodeHexToCoordinates, emptyHex256 } from './libraries/Constructs'
+import { BigCoords, decodeHexToCoordinates, emptyHex256, downscaleCoords } from './libraries/Constructs'
 import * as THREE from 'three'
-
-const CYBERSPACE_SIZE = BigInt(2**85)
-const UNIVERSE_DOWNSCALE = BigInt(2**35)
-const UNIVERSE_SIZE = Number(CYBERSPACE_SIZE / UNIVERSE_DOWNSCALE)
 
 function App() {
 
   const [scale] = useState(UNIVERSE_SIZE)
-  const [size, setSize] = useState(1)
-  const [coord, setCoord] = useState(decodeHexToCoordinates(emptyHex256, UNIVERSE_DOWNSCALE))
+  const [size, setSize] = useState(Math.pow(2,64))
+  const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(emptyHex256))
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    const coordParam = urlParams.get('hash') || emptyHex256
-    setCoord(decodeHexToCoordinates(coordParam, UNIVERSE_DOWNSCALE))
-    const sizeParam = urlParams.get('size') || ""
+    const coordParam = urlParams.get('coord') || emptyHex256
+    setCoord(decodeHexToCoordinates(coordParam))
+    const sizeParam = urlParams.get('constructsize') || ""
     setSize(parseInt(sizeParam) || 1)
   }, [])
+
+  const downscaled = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
+  const orbitTarget = new THREE.Vector3(downscaled.x, downscaled.y, downscaled.z)
 
   return (
     <div className="cyberspace-viewer">
@@ -33,10 +32,13 @@ function App() {
         position: [0, 0, scale]
       }}>
         <ambientLight intensity={0.8} />
-        <Cyberspace scale={scale} coord={coord}>
+        <Cyberspace scale={1} coord={coord}>
           <Construct coord={coord} size={size}/>
+          <Line points={[[0,0,0],[scale*4,0,0]]} color={0xff0000}/> {/* X axis */}
+          <Line points={[[0,0,0],[0,scale,0]]} color={0x00ff00}/> {/* Y axis */}
+          <Line points={[[0,0,0],[0,0,scale]]} color={0x006fff}/> {/* Z axis */}
         </Cyberspace>
-        <OrbitControls target={new THREE.Vector3(coord.x, coord.y, coord.z)}/>
+        <OrbitControls target={orbitTarget}/>
       </Canvas>
     </div>
   )

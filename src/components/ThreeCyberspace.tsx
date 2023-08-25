@@ -1,7 +1,12 @@
 import React, { useMemo, useRef, useState, useEffect } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { Coords } from "../libraries/Constructs.js"
+import { BigCoords } from "../libraries/Constructs.js"
+
+export const CYBERSPACE_SIZE = BigInt(2**85)
+export const UNIVERSE_DOWNSCALE = BigInt(2**35)
+export const UNIVERSE_SIZE = Number(CYBERSPACE_SIZE / UNIVERSE_DOWNSCALE)
+export const UNIVERSE_SIZE_HALF = UNIVERSE_SIZE / 2
 
 const INTERACTION_RESET_DELAY = 10_000
 
@@ -27,21 +32,22 @@ const SunMaterial = new THREE.MeshBasicMaterial({
 
 interface CyberspaceProps {
   scale: number,
-  coord: Coords,
+  coord: BigCoords,
   children: React.ReactNode,
 }
+
+const centerVec = new THREE.Vector3(UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF) // The center of cyberspace
 
 export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  children }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
-  const defaultViewTimeoutRef = useRef<number|undefined>(undefined)
+  const defaultViewTimeoutRef = useRef<NodeJS.Timeout|undefined>(undefined)
   const [elapsedTime, setElapsedTime] = useState(0)
   const { camera } = useThree()
 
-  const targetPosition = new THREE.Vector3()
-  const radius = scale*2*2*2*2// The radius of the circular path the camera will follow
-  const center = new THREE.Vector3(0, 0, 0) // The center of the object
+  const targetPosition = centerVec
+  const radius = UNIVERSE_SIZE_HALF // The radius of the circular path the camera will follow
 
   // Attach pointerdown and pointerup event listeners
   useEffect(() => {
@@ -72,7 +78,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
 
   // Compute the lines and grids only once
   const { grids, blacksun } = useMemo(() => {
-    const gridSize = 8
+    const gridSize = 1
     const grids = [
       <gridHelper
         key="y+"
@@ -95,12 +101,9 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
     )
 
     return { grids, blacksun }
-  }, [])
+  }, [scale])
   
   useFrame(({ clock }) => {
-    if (groupRef.current) {
-      groupRef.current.scale.set(scale, scale, scale)
-    }
     // camera.lookAt(new THREE.Vector3(coord.x, coord.y, coord.z))
     if (defaultView) {
       if (!clock.running) clock.start()
@@ -118,6 +121,11 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
       }
     }
   })
+
+  console.log('gridRef', gridRef.current)
+  if (groupRef.current) {
+    groupRef.current.scale.set(scale, scale, scale)
+  }
 
   return (
     <>
