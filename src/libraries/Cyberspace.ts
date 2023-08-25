@@ -1,0 +1,5 @@
+
+export const CYBERSPACE_SIZE = BigInt(2 ** 85)
+export const UNIVERSE_DOWNSCALE = BigInt(2 ** 35)
+export const UNIVERSE_SIZE = Number(CYBERSPACE_SIZE / UNIVERSE_DOWNSCALE)
+export const UNIVERSE_SIZE_HALF = UNIVERSE_SIZE / 2

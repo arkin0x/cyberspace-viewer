@@ -1,22 +1,18 @@
 import React, { useMemo, useRef, useState, useEffect } from "react"
 import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { BigCoords } from "../libraries/Constructs.js"
-
-export const CYBERSPACE_SIZE = BigInt(2**85)
-export const UNIVERSE_DOWNSCALE = BigInt(2**35)
-export const UNIVERSE_SIZE = Number(CYBERSPACE_SIZE / UNIVERSE_DOWNSCALE)
-export const UNIVERSE_SIZE_HALF = UNIVERSE_SIZE / 2
+import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
+import { UNIVERSE_SIZE_HALF, UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "../libraries/Cyberspace.js"
 
 const INTERACTION_RESET_DELAY = 10_000
 
-const LOGO_TEAL = 0x06a4a4
+// const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
 const LOGO_BLUE = 0x0062cd
 
-const TealLineMaterial = new THREE.LineBasicMaterial({
-  color: LOGO_TEAL,
-})
+// const TealLineMaterial = new THREE.LineBasicMaterial({
+//   color: LOGO_TEAL,
+// })
 const PurpleLineMaterial = new THREE.LineBasicMaterial({
   color: LOGO_PURPLE,
 })
@@ -31,14 +27,13 @@ const SunMaterial = new THREE.MeshBasicMaterial({
 })
 
 interface CyberspaceProps {
-  scale: number,
-  coord: BigCoords,
+  targetCoord: BigCoords, // for camera orbit
   children: React.ReactNode,
 }
 
 const centerVec = new THREE.Vector3(UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF) // The center of cyberspace
 
-export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  children }) => {
+export const Cyberspace: React.FC<CyberspaceProps> = ({ targetCoord, children }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
@@ -47,6 +42,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
   const { camera } = useThree()
 
   const targetPosition = centerVec
+  const downscaledTargetCoord = downscaleCoords(targetCoord, UNIVERSE_DOWNSCALE)
   const radius = UNIVERSE_SIZE_HALF // The radius of the circular path the camera will follow
 
   // Attach pointerdown and pointerup event listeners
@@ -78,40 +74,38 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
 
   // Compute the lines and grids only once
   const { grids, blacksun } = useMemo(() => {
-    const gridSize = 1
     const grids = [
       <gridHelper
         key="y+"
-        args={[gridSize, 32]}
-        position={[0, gridSize / 2, 0]}
+        args={[UNIVERSE_SIZE, 32]}
+        position={[UNIVERSE_SIZE_HALF, UNIVERSE_SIZE, UNIVERSE_SIZE_HALF]}
         material={BlueLineMaterial}
         renderOrder={1}
       />,
       <gridHelper
         key="y-"
-        args={[gridSize, 32]}
-        position={[0, -gridSize / 2, 0]}
+        args={[UNIVERSE_SIZE, 32]}
+        position={[UNIVERSE_SIZE_HALF, 0, UNIVERSE_SIZE_HALF]}
         material={PurpleLineMaterial}
         renderOrder={1}
       />,
     ]
 
     const blacksun = (
-      <mesh geometry={new THREE.CircleGeometry(scale, 64)} material={SunMaterial} position={[0,0,-scale*2*2]} renderOrder={-1}/>
+      <mesh geometry={new THREE.CircleGeometry(UNIVERSE_SIZE_HALF, 64)} material={SunMaterial} position={[0,0,0]} renderOrder={-1}/>
     )
 
     return { grids, blacksun }
-  }, [scale])
+  }, [])
   
   useFrame(({ clock }) => {
-    // camera.lookAt(new THREE.Vector3(coord.x, coord.y, coord.z))
     if (defaultView) {
       if (!clock.running) clock.start()
       const angle = (clock.elapsedTime + elapsedTime) * 0.2 // Controls the speed of rotation
       targetPosition.set(
-        coord.x + radius * Math.sin(angle),
-        coord.y + scale/5,
-        coord.z + radius * Math.cos(angle)
+        downscaledTargetCoord.x + radius * Math.sin(angle),
+        downscaledTargetCoord.y + UNIVERSE_SIZE/5,
+        downscaledTargetCoord.z + radius * Math.cos(angle)
       )
       camera.position.lerp(targetPosition, 0.05)
     } else {
@@ -122,18 +116,15 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ scale = 1, coord,  child
     }
   })
 
-  console.log('gridRef', gridRef.current)
-  if (groupRef.current) {
-    groupRef.current.scale.set(scale, scale, scale)
-  }
+  // if (groupRef.current) {
+  //   groupRef.current.scale.set(scale, scale, scale)
+  // }
 
   return (
-    <>
     <group ref={groupRef}>
       {blacksun}
       {grids}
-    </group>
       {children}
-    </>
+    </group>
   )
 }

@@ -6,7 +6,7 @@ function summation(n: number): number {
   }
 }
 
-export function constructSizeByValidProofOfWork(pow) {
+export function constructSizeByValidProofOfWork(pow: number): number {
   return Math.floor(Math.pow(summation(pow), pow / 32))
 }
 

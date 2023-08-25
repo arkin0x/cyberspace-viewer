@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Line, OrbitControls } from "@react-three/drei"
-import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, Cyberspace } from './components/ThreeCyberspace'
+import { Cyberspace } from './components/ThreeCyberspace'
+import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "./libraries/Cyberspace"
 import { Construct } from './components/ThreeConstruct'
 import './App.css'
 import { BigCoords, decodeHexToCoordinates, emptyHex256, downscaleCoords } from './libraries/Constructs'
@@ -32,11 +33,11 @@ function App() {
         position: [0, 0, scale]
       }}>
         <ambientLight intensity={0.8} />
-        <Cyberspace scale={1} coord={coord}>
+        <Cyberspace targetCoord={coord}>
           <Construct coord={coord} size={size}/>
-          <Line points={[[0,0,0],[scale*4,0,0]]} color={0xff0000}/> {/* X axis */}
-          <Line points={[[0,0,0],[0,scale,0]]} color={0x00ff00}/> {/* Y axis */}
-          <Line points={[[0,0,0],[0,0,scale]]} color={0x006fff}/> {/* Z axis */}
+          <Line points={[[0,0,0],[scale,0,0]]} color={0xff0000}/>
+          <Line points={[[0,0,0],[0,scale,0]]} color={0x00ff00}/>
+          <Line points={[[0,0,0],[0,0,scale]]} color={0x006fff}/>
         </Cyberspace>
         <OrbitControls target={orbitTarget}/>
       </Canvas>

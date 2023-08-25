@@ -1,14 +1,14 @@
-import React, { useMemo, useRef, useState, useEffect } from "react"
-import { useThree, useFrame } from "@react-three/fiber"
+import React, { useMemo, useRef } from "react"
 import * as THREE from "three"
 import { Line } from "three"
 import { InverseConstructLineData } from "../data/ConstructLineData.js"
 import { Operator } from "./ThreeOperator"
-import { BigCoords } from "../libraries/Constructs.js"
+import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
+import { UNIVERSE_DOWNSCALE } from "../libraries/Cyberspace.js"
 
 const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
-const LOGO_BLUE = 0x0062cd
+// const LOGO_BLUE = 0x0062cd
 
 const TealLineMaterial = new THREE.LineBasicMaterial({
   color: LOGO_TEAL,
@@ -17,12 +17,14 @@ const PurpleLineMaterial = new THREE.LineBasicMaterial({
   color: LOGO_PURPLE,
 })
 
-const BlueLineMaterial = new THREE.LineBasicMaterial({
-  color: LOGO_BLUE,
-})
+// const BlueLineMaterial = new THREE.LineBasicMaterial({
+//   color: LOGO_BLUE,
+// })
 
 export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coord, size = 1 }) => {
   const groupRef = useRef<THREE.Group>(null)
+
+  const downscaledCoord = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
 
   // Compute the lines and grids only once
   const { lines, grids } = useMemo(() => {
@@ -87,7 +89,7 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
 
   return (
     <>
-    <group ref={groupRef} scale={[size, size, size]} position={[coord.x, coord.y, coord.z]} renderOrder={2}>
+    <group ref={groupRef} scale={[size, size, size]} position={[downscaledCoord.x, downscaledCoord.y, downscaledCoord.z]} renderOrder={2}>
       {lines}
       {grids}
       <Operator position={[-size*4 -1, 0, size*4 +1]}/>
