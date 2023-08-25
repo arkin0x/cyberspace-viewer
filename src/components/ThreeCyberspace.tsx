@@ -27,13 +27,14 @@ const SunMaterial = new THREE.MeshBasicMaterial({
 })
 
 interface CyberspaceProps {
+  targetSize: number, // size of construct to determine camera orbit radius
   targetCoord: BigCoords, // for camera orbit
   children: React.ReactNode,
 }
 
 const centerVec = new THREE.Vector3(UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF, UNIVERSE_SIZE_HALF) // The center of cyberspace
 
-export const Cyberspace: React.FC<CyberspaceProps> = ({ targetCoord, children }) => {
+export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord, children }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [interactionActive, setInteractionActive] = useState(false)
   const [defaultView, setDefaultView] = useState(true)
@@ -43,7 +44,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetCoord, children })
 
   const targetPosition = centerVec
   const downscaledTargetCoord = downscaleCoords(targetCoord, UNIVERSE_DOWNSCALE)
-  const radius = UNIVERSE_SIZE_HALF // The radius of the circular path the camera will follow
+  const radius = targetSize * 100 // The radius of the circular path the camera will follow
 
   // Attach pointerdown and pointerup event listeners
   useEffect(() => {
@@ -92,7 +93,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetCoord, children })
     ]
 
     const blacksun = (
-      <mesh geometry={new THREE.CircleGeometry(UNIVERSE_SIZE_HALF, 64)} material={SunMaterial} position={[0,0,0]} renderOrder={-1}/>
+      <mesh geometry={new THREE.CircleGeometry(UNIVERSE_SIZE_HALF/2, 64)} material={SunMaterial} position={[UNIVERSE_SIZE_HALF,UNIVERSE_SIZE_HALF,-UNIVERSE_SIZE_HALF]} renderOrder={-1}/>
     )
 
     return { grids, blacksun }
@@ -104,7 +105,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetCoord, children })
       const angle = (clock.elapsedTime + elapsedTime) * 0.2 // Controls the speed of rotation
       targetPosition.set(
         downscaledTargetCoord.x + radius * Math.sin(angle),
-        downscaledTargetCoord.y + UNIVERSE_SIZE/5,
+        downscaledTargetCoord.y + radius/5,
         downscaledTargetCoord.z + radius * Math.cos(angle)
       )
       camera.position.lerp(targetPosition, 0.05)

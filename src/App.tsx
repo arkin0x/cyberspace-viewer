@@ -18,7 +18,7 @@ function App() {
     const urlParams = new URLSearchParams(window.location.search)
     const coordParam = urlParams.get('coord') || emptyHex256
     setCoord(decodeHexToCoordinates(coordParam))
-    const sizeParam = urlParams.get('constructsize') || ""
+    const sizeParam = urlParams.get('constructSize') || ""
     setSize(parseInt(sizeParam) || 1)
   }, [])
 
@@ -33,11 +33,8 @@ function App() {
         position: [0, 0, scale]
       }}>
         <ambientLight intensity={0.8} />
-        <Cyberspace targetCoord={coord}>
+        <Cyberspace targetCoord={coord} targetSize={size}>
           <Construct coord={coord} size={size}/>
-          <Line points={[[0,0,0],[scale,0,0]]} color={0xff0000}/>
-          <Line points={[[0,0,0],[0,scale,0]]} color={0x00ff00}/>
-          <Line points={[[0,0,0],[0,0,scale]]} color={0x006fff}/>
         </Cyberspace>
         <OrbitControls target={orbitTarget}/>
       </Canvas>
