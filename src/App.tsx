@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Line, OrbitControls } from "@react-three/drei"
 import { Cyberspace } from './components/ThreeCyberspace'
-import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "./libraries/Cyberspace"
+import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, CENTERCOORD } from "./libraries/Cyberspace"
 import { Construct } from './components/ThreeConstruct'
 import './App.css'
-import { BigCoords, decodeHexToCoordinates, emptyHex256, downscaleCoords } from './libraries/Constructs'
+import { BigCoords, decodeHexToCoordinates, downscaleCoords } from './libraries/Constructs'
 import * as THREE from 'three'
 
 function App() {
 
   const [scale] = useState(UNIVERSE_SIZE)
   const [size, setSize] = useState(Math.pow(2,64))
-  const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(emptyHex256))
+  const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(CENTERCOORD))
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    const coordParam = urlParams.get('coord') || emptyHex256
+    const coordParam = urlParams.get('coord') || CENTERCOORD
     setCoord(decodeHexToCoordinates(coordParam))
     const sizeParam = urlParams.get('constructSize') || ""
     setSize(parseInt(sizeParam) || 1)
