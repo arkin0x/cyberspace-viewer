@@ -5,7 +5,7 @@ import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
 import { UNIVERSE_SIZE_HALF, UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "../libraries/Cyberspace.js"
 import { invert } from "three/examples/jsm/nodes/Nodes.js"
 
-const INTERACTION_RESET_DELAY = 1//5_000
+const INTERACTION_RESET_DELAY = 5_000
 
 // const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
