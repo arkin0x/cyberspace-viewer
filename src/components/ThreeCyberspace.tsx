@@ -3,8 +3,9 @@ import { useThree, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
 import { UNIVERSE_SIZE_HALF, UNIVERSE_DOWNSCALE, UNIVERSE_SIZE } from "../libraries/Cyberspace.js"
+import { invert } from "three/examples/jsm/nodes/Nodes.js"
 
-const INTERACTION_RESET_DELAY = 10_000
+const INTERACTION_RESET_DELAY = 1//5_000
 
 // const LOGO_TEAL = 0x06a4a4
 const LOGO_PURPLE = 0x78004e
@@ -40,15 +41,29 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord,
   const [defaultView, setDefaultView] = useState(true)
   const defaultViewTimeoutRef = useRef<NodeJS.Timeout|undefined>(undefined)
   const [elapsedTime, setElapsedTime] = useState(0)
+  const [lerpAlpha, setLerpAlpha] = useState(1)
   const { camera } = useThree()
 
   const targetPosition = centerVec
   const downscaledTargetCoord = downscaleCoords(targetCoord, UNIVERSE_DOWNSCALE)
-  const radius = targetSize * 100 // The radius of the circular path the camera will follow
+  // const radius = targetSize * 10 // The radius of the circular path the camera will follow
+
+const minSize = 1
+const maxSize = 2**50/256/256
+
+// const ratio = ( targetSize + (maxSize * 0.1)) / maxSize
+const ratio = targetSize / maxSize
+
+// const radius = 100 * Math.pow(targetSize, ratio) + targetSize
+// const radius = 100 + targetSize * (1 + ratio)
+  const invertRatioLimit = Math.max(1-ratio, minSize/maxSize)
+
+  const radius = Math.max(100, targetSize + targetSize * invertRatioLimit)
 
   // Attach pointerdown and pointerup event listeners
   useEffect(() => {
     const handleInteractionStart = () => {
+      setLerpAlpha(0.05) // permanent
       clearTimeout(defaultViewTimeoutRef.current)
       setInteractionActive(true)
       setDefaultView(false)
@@ -108,7 +123,7 @@ export const Cyberspace: React.FC<CyberspaceProps> = ({ targetSize, targetCoord,
         downscaledTargetCoord.y + radius/5,
         downscaledTargetCoord.z + radius * Math.cos(angle)
       )
-      camera.position.lerp(targetPosition, 0.05)
+      camera.position.lerp(targetPosition, lerpAlpha)
     } else {
       if (clock.running) {
         setElapsedTime(clock.elapsedTime + elapsedTime)

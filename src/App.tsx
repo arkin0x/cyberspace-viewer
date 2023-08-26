@@ -11,7 +11,7 @@ import * as THREE from 'three'
 function App() {
 
   const [scale] = useState(UNIVERSE_SIZE)
-  const [size, setSize] = useState(Math.pow(2,64))
+  const [size, setSize] = useState(1)
   const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(CENTERCOORD))
 
   useEffect(() => {
@@ -21,6 +21,23 @@ function App() {
     const sizeParam = urlParams.get('constructSize') || ""
     setSize(parseInt(sizeParam) || 1)
   }, [])
+
+  // test
+  useEffect(() => {
+    function changeSize(e) {
+      if (e.key === 'ArrowUp') {
+        setSize(size * 2)
+      }
+      if (e.key === 'ArrowDown') {
+        setSize(Math.max(1, size / 2))
+      }
+    }
+    window.addEventListener('keydown', changeSize)
+
+    return () => {
+      window.removeEventListener('keydown', changeSize)
+    }
+  }, [size]) 
 
   const downscaled = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
   const orbitTarget = new THREE.Vector3(downscaled.x, downscaled.y, downscaled.z)
@@ -36,7 +53,7 @@ function App() {
         <Cyberspace targetCoord={coord} targetSize={size}>
           <Construct coord={coord} size={size}/>
         </Cyberspace>
-        <OrbitControls target={orbitTarget}/>
+        <OrbitControls target={orbitTarget} zoomSpeed={5}/>
       </Canvas>
     </div>
   )
