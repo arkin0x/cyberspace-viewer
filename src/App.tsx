@@ -22,23 +22,6 @@ function App() {
     setSize(parseInt(sizeParam) || 1)
   }, [])
 
-  // test
-  useEffect(() => {
-    function changeSize(e) {
-      if (e.key === 'ArrowUp') {
-        setSize(size * 2)
-      }
-      if (e.key === 'ArrowDown') {
-        setSize(Math.max(1, size / 2))
-      }
-    }
-    window.addEventListener('keydown', changeSize)
-
-    return () => {
-      window.removeEventListener('keydown', changeSize)
-    }
-  }, [size]) 
-
   const downscaled = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
   const orbitTarget = new THREE.Vector3(downscaled.x, downscaled.y, downscaled.z)
 
