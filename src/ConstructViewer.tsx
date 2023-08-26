@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Line, OrbitControls } from "@react-three/drei"
+import { OrbitControls } from "@react-three/drei"
 import { Cyberspace } from './components/ThreeCyberspace'
 import { UNIVERSE_DOWNSCALE, UNIVERSE_SIZE, CENTERCOORD } from "./libraries/Cyberspace"
 import { Construct } from './components/ThreeConstruct'
@@ -8,13 +8,13 @@ import './App.css'
 import { BigCoords, decodeHexToCoordinates, downscaleCoords } from './libraries/Constructs'
 import * as THREE from 'three'
 
-type ConstructViewerProps = {
+export type ConstructViewerProps = {
   constructSize?: number,
   hexLocation?: string, // 64 character hex string
   style?: React.CSSProperties,
 }
 
-export const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, style = {height: "100vh"}}: ConstructViewerProps) => {
+const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, style = {height: "100vh"}}: ConstructViewerProps) => {
 
   const [scale] = useState(UNIVERSE_SIZE)
   const [size, setSize] = useState(constructSize)
@@ -47,3 +47,5 @@ export const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, s
     </div>
   )
 }
+
+export default ConstructViewer
