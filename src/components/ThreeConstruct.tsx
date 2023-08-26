@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from "react"
 import * as THREE from "three"
 import { Line } from "three"
-import { InverseConstructLineData } from "../data/ConstructLineData.js"
+import { InverseConstructLineData, getCubeWireframeVertices } from "../data/ConstructLineData.js"
 import { Operator } from "./ThreeOperator"
 import { BigCoords, downscaleCoords } from "../libraries/Constructs.js"
 import { UNIVERSE_DOWNSCALE } from "../libraries/Cyberspace.js"
@@ -27,72 +27,38 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
   const downscaledCoord = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
 
   // Compute the lines and grids only once
-  const { lines, grids } = useMemo(() => {
+  const { lines, cube } = useMemo(() => {
     const lines = InverseConstructLineData.map(([start, end]) => {
       const points = [new THREE.Vector3(...start), new THREE.Vector3(...end)]
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
       return (
         <primitive
-          key={JSON.stringify({ start, end })}
+          key={"line"+JSON.stringify({ start, end })}
           object={new Line(geometry, TealLineMaterial)}
         />
       )
     })
 
-    const gridSize = 8 
-    const gridSegments = 1
-    const grids = [
-      <gridHelper
-        key="y+"
-        args={[gridSize, gridSegments]}
-        position={[0, gridSize / 2, 0]}
-        material={PurpleLineMaterial}
-      />,
-      <gridHelper
-        key="x+"
-        args={[gridSize, gridSegments]}
-        position={[gridSize/2, 0, 0]}
-        rotation={[0, 0, Math.PI / 2]}
-        material={PurpleLineMaterial}
-      />,
-      <gridHelper
-        key="z+"
-        args={[gridSize, gridSegments]}
-        position={[0, 0, gridSize / 2]}
-        rotation={[Math.PI / 2, 0, 0]}
-        material={PurpleLineMaterial}
-      />,
-      <gridHelper
-        key="y-"
-        args={[gridSize, gridSegments]}
-        position={[0, -gridSize / 2, 0]}
-        material={PurpleLineMaterial}
-      />,
-      <gridHelper
-        key="x-"
-        args={[gridSize, gridSegments]}
-        position={[-gridSize/2, 0, 0]}
-        rotation={[0, 0, Math.PI / 2]}
-        material={PurpleLineMaterial}
-      />,
-      <gridHelper
-        key="z-"
-        args={[gridSize, gridSegments]}
-        position={[0, 0, -gridSize / 2]}
-        rotation={[Math.PI / 2, 0, 0]}
-        material={PurpleLineMaterial}
-      />,
-    ]
+    const cube = getCubeWireframeVertices(1).map(([start, end]) => {
+      const points = [new THREE.Vector3(...start), new THREE.Vector3(...end)]
+      const geometry = new THREE.BufferGeometry().setFromPoints(points)
+      return (
+        <primitive
+          key={"cube"+JSON.stringify({ start, end })}
+          object={new Line(geometry, PurpleLineMaterial)}
+        />
+      )
+    })
 
-    return { lines, grids }
+    return { lines, cube }
   }, [])
 
   return (
     <>
-    <group ref={groupRef} scale={[size, size, size]} position={[downscaledCoord.x, downscaledCoord.y, downscaledCoord.z]} renderOrder={2}>
+    <group scale={[size, size, size]} ref={groupRef} position={[downscaledCoord.x, downscaledCoord.y, downscaledCoord.z]} renderOrder={2}>
       {lines}
-      {grids}
-      <Operator position={[-size*4 -1, 0, size*4 +1]}/>
+      {cube}
+      <Operator position={[-0.5-1, 0, 0.5+1]}/>
     </group>
     </>
   )
