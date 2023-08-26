@@ -26,6 +26,8 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
 
   const downscaledCoord = downscaleCoords(coord, UNIVERSE_DOWNSCALE)
 
+  let count = 0
+
   // Compute the lines and grids only once
   const { lines, cube } = useMemo(() => {
     const lines = InverseConstructLineData.map(([start, end]) => {
@@ -42,9 +44,10 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
     const cube = getCubeWireframeVertices(1).map(([start, end]) => {
       const points = [new THREE.Vector3(...start), new THREE.Vector3(...end)]
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
+      count++
       return (
         <primitive
-          key={"cube"+JSON.stringify({ start, end })}
+          key={`cube${count}`}
           object={new Line(geometry, PurpleLineMaterial)}
         />
       )
