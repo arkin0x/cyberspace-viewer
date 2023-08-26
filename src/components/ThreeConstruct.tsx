@@ -54,12 +54,9 @@ export const Construct: React.FC<{ coord: BigCoords, size?: number  }> = ({ coor
   }, [])
 
   return (
-    <>
     <group scale={[size, size, size]} ref={groupRef} position={[downscaledCoord.x, downscaledCoord.y, downscaledCoord.z]} renderOrder={2}>
       {lines}
       {cube}
-      <Operator position={[-0.5-1, 0, 0.5+1]}/>
     </group>
-    </>
   )
 }
