@@ -8,11 +8,17 @@ import './App.css'
 import { BigCoords, decodeHexToCoordinates, downscaleCoords } from './libraries/Constructs'
 import * as THREE from 'three'
 
-function App() {
+type ConstructViewerProps = {
+  constructSize?: number,
+  hexLocation?: string, // 64 character hex string
+  style?: React.CSSProperties,
+}
+
+export const ConstructViewer = ({constructSize = 1, hexLocation = CENTERCOORD, style = {height: "100vh"}}: ConstructViewerProps) => {
 
   const [scale] = useState(UNIVERSE_SIZE)
-  const [size, setSize] = useState(1)
-  const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(CENTERCOORD))
+  const [size, setSize] = useState(constructSize)
+  const [coord, setCoord] = useState<BigCoords>(decodeHexToCoordinates(hexLocation))
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -27,7 +33,7 @@ function App() {
 
   return (
     <div className="cyberspace-viewer">
-      <Canvas style={{height: "100vh"}} camera={{
+      <Canvas style={style} camera={{
         near: 0.001, 
         far: scale*2*2*2*2*2*2*2*2,
         position: [0, 0, scale]
@@ -41,5 +47,3 @@ function App() {
     </div>
   )
 }
-
-export default App
